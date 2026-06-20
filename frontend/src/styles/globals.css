@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom classy defaults */
+body {
+  @apply bg-slate-50 text-slate-900 antialiased;
+  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+/* Ensure the main layout takes full height */
+#__next {
+  height: 100%;
+}

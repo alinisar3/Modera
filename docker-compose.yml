@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  # 1. Database Service: MongoDB
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  # 2. Backend Service: Express.js API
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/modera
+      - MISTRAL_API_KEY=${MISTRAL_API_KEY} 
+      - JWT_SECRET=${JWT_SECRET}
+      - ADMIN_SECRET_KEY=${ADMIN_SECRET_KEY}
+    depends_on:
+      - mongo
+
+  # 3. Frontend Service: Next.js Web App
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      # Crucial: Must include /api suffix to match backend routes
+      - NEXT_PUBLIC_API_URL=http://localhost:5000/api
+    depends_on:
+      - backend
+
+# Persistent storage for the database
+volumes:
+  mongo-data:
