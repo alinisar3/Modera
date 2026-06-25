@@ -74,13 +74,11 @@ export default function Sidebar() {
                     </div>
                     <div>
                         <span className="text-white font-black text-2xl tracking-tighter block leading-none">MODERA</span>
-                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em]">Governance</span>
                     </div>
                 </div>
                 
                 {/* Navigation Section */}
                 <nav className="flex-1 space-y-3 pt-12 lg:pt-0">
-                    <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.25em] mb-4 ml-2">Console Nodes</p>
                     {menuItems.map((item) => {
                         const isActive = router.pathname === item.path;
                         return (

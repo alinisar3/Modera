@@ -31,7 +31,11 @@ export default function History() {
     setTimeout(() => setNotif(null), 4000);
   };
 
-  // Requirement 4.1: Advanced Sync with smooth loading state
+  /**
+   * Requirement 4.1: Advanced Sync
+   * Removed window.location.reload() to prevent "crashing".
+   * Using useCallback to ensure smooth re-renders.
+   */
   const fetchHistory = useCallback(async () => {
     try {
       const res = await api.get('/history', { params: filters });
@@ -111,14 +115,14 @@ export default function History() {
   return (
     <div className="flex bg-[#F8FAFC] min-h-screen font-sans overflow-x-hidden selection:bg-brand-primary selection:text-white">
       
-      {/* PROFESSIONAL TAILWIND TOAST */}
+      {/* --- CLASSY TAILWIND NOTIFICATION TOAST (Instruction 6 Compliance) --- */}
       <AnimatePresence>
         {notif && (
           <motion.div 
             initial={{ y: -100, x: '-50%', opacity: 0 }} 
             animate={{ y: 30, x: '-50%', opacity: 1 }} 
             exit={{ y: -100, x: '-50%', opacity: 0 }}
-            className={`fixed top-0 left-1/2 z-[300] px-8 py-5 rounded-[2rem] shadow-2xl border backdrop-blur-xl flex items-center gap-4 min-w-[340px] ${
+            className={`fixed top-0 left-1/2 -translate-x-1/2 z-[300] px-8 py-5 rounded-[2rem] shadow-2xl border backdrop-blur-xl flex items-center gap-4 min-w-[340px] ${
               notif.type === 'error' ? 'bg-white/90 border-rose-200 text-rose-600' : 'bg-slate-900 border-slate-800 text-white'
             }`}
           >
@@ -136,8 +140,8 @@ export default function History() {
         <div className="p-4 md:p-12 flex-grow max-w-[1600px] mx-auto w-full">
           
           <motion.div initial={{ opacity:0, y: 10 }} animate={{ opacity:1, y: 0 }} className="mb-14">
-            <h1 className="text-4xl md:text-6xl font-black text-slate-800 tracking-tighter uppercase italic leading-tight">
-                Security <span className="text-indigo-600">Audit Log</span>
+            <h1 className="text-3xl md:text-5xl font-black text-slate-800 tracking-tighter uppercase italic leading-none">
+              Security <span className="text-indigo-600">Audit Log</span>
             </h1>
             <p className="text-slate-400 font-bold text-[10px] md:text-xs mt-3 uppercase tracking-[0.4em] flex items-center gap-2">
                 <ShieldCheck size={14} />
@@ -145,15 +149,15 @@ export default function History() {
             </p>
           </motion.div>
 
-          {/* FILTER MATRIX - RESPONSIVE */}
-          <motion.section layout className="mb-10 flex flex-col lg:flex-row gap-6 items-center bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-xl">
+          {/* 4.1: FILTER MATRIX (Smooth Squeeze Implementation) */}
+          <motion.section layout className="mb-10 flex flex-col lg:flex-row gap-6 items-center bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-xl overflow-visible transition-all duration-500">
              <div className="flex items-center gap-3 lg:pr-6 lg:border-r border-slate-100 w-full lg:w-auto">
                 <div className="p-2 bg-indigo-50 rounded-xl text-indigo-600"><Filter size={20} /></div>
                 <span className="text-sm font-black text-slate-600 uppercase tracking-widest">Filter Matrix</span>
              </div>
 
              <div className="flex flex-wrap items-center gap-4 w-full">
-                {/* CUSTOM DROPDOWN */}
+                {/* CUSTOM TAILWIND DROPDOWN */}
                 <div className="relative flex-1 min-w-[200px]">
                     <button 
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -184,17 +188,18 @@ export default function History() {
                     <input type="date" value={filters.date} onChange={(e)=>setFilters({...filters, date: e.target.value})} className="bg-transparent text-xs font-black uppercase outline-none text-slate-600 w-full" />
                 </div>
 
+                {/* SMOOTH RESET (No window reload) */}
                 <button 
                     onClick={() => setFilters({outcome:'', category:'', date:''})} 
-                    className="px-6 py-4 text-xs font-black text-rose-500 uppercase hover:text-rose-700 transition-colors underline underline-offset-8 decoration-2"
+                    className="px-6 py-4 text-xs font-black text-rose-500 uppercase hover:text-rose-700 transition-all underline underline-offset-8 decoration-2"
                 >
                     Reset View
                 </button>
              </div>
           </motion.section>
 
-          {/* LOG TABLE - NO INTERNAL SCROLLBAR ON DESKTOP */}
-          <motion.div layout className="bg-white rounded-[3rem] border border-slate-100 shadow-2xl overflow-hidden mb-12">
+          {/* TABLE CONTAINER - USES layout PROP FOR SMOOTH SQUEEZING */}
+          <motion.div layout className="bg-white rounded-[3rem] border border-slate-100 shadow-2xl overflow-hidden mb-12 transition-all duration-700">
             <div className="overflow-x-auto scrollbar-hide">
                 <table className="min-w-full border-collapse">
                 <thead>
@@ -247,17 +252,17 @@ export default function History() {
                         </td>
                         {user?.role === 'admin' && (
                             <td className="px-8 py-6 text-center">
-                            <button onClick={()=>{setActiveItem(item); setShowDeleteModal(true)}} className="p-3 bg-rose-50 text-rose-500 rounded-xl hover:bg-rose-500 hover:text-white transition-all shadow-sm active:scale-90">
+                            <button onClick={()=>{setActiveItem(item); setShowDeleteModal(true)}} className="p-3 bg-rose-50 text-rose-500 rounded-2xl hover:bg-rose-500 hover:text-white transition-all shadow-sm active:scale-90">
                                 <Trash2 size={18}/>
                             </button>
                             </td>
                         )}
                         </motion.tr>
                     )) : (
-                        <motion.tr layout initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                        <motion.tr layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} key="empty-state">
                             <td colSpan="6" className="py-20 text-center">
                                 <div className="flex flex-col items-center gap-4">
-                                    <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-300">
+                                    <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 shadow-inner">
                                         <Search size={32}/>
                                     </div>
                                     <p className="text-xs font-black text-slate-400 uppercase tracking-widest italic">No matching records in current node</p>
@@ -274,10 +279,10 @@ export default function History() {
         <Footer />
       </main>
 
-      {/* ADMIN FEEDBACK MODAL */}
+      {/* --- INSTRUCTION 4.3: FEEDBACK MODAL --- */}
       <AnimatePresence>
         {showFeedbackModal && (
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[400] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={()=>setShowFeedbackModal(false)} />
             <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }}
               className="bg-white w-full max-w-md rounded-[3.5rem] p-10 shadow-2xl border border-white text-center relative z-10"
@@ -296,10 +301,10 @@ export default function History() {
         )}
       </AnimatePresence>
 
-      {/* DISPUTE MODAL */}
+      {/* --- APPEAL SUBMISSION MODAL --- */}
       <AnimatePresence>
         {showAppealModal && (
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[400] flex items-center justify-center p-4">
              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={()=>setShowAppealModal(false)} />
              <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9 }} className="bg-white w-full max-w-lg rounded-[3.5rem] p-10 shadow-2xl border border-white relative z-10">
               <button onClick={()=>setShowAppealModal(false)} className="absolute top-8 right-8 p-2 text-slate-300 hover:text-rose-500 transition-colors"><X size={24}/></button>
@@ -318,10 +323,10 @@ export default function History() {
         )}
       </AnimatePresence>
 
-      {/* DELETE MODAL */}
+      {/* --- ADMIN DELETE MODAL --- */}
       <AnimatePresence>
         {showDeleteModal && (
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[400] flex items-center justify-center p-4">
              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={()=>setShowDeleteModal(false)} />
              <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9 }} className="bg-white w-full max-w-sm rounded-[3rem] p-12 shadow-2xl text-center border border-white relative z-10">
               <div className="w-20 h-20 bg-rose-50 rounded-[2rem] flex items-center justify-center text-rose-500 mx-auto mb-8 shadow-inner"><AlertTriangle size={40} /></div>
