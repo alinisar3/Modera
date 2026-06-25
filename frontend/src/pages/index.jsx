@@ -6,44 +6,30 @@ import StatCard from '../components/StatCard';
 import Footer from '../components/Footer';
 import { 
   Upload, ShieldCheck, AlertTriangle, XCircle, Sparkles, X, 
-  Activity, ShieldAlert, Zap, BarChart3, Fingerprint, Layers, Cpu
+  Activity, ShieldAlert, Zap, BarChart3, Fingerprint, Layers, Cpu, Search, ClipboardCheck
 } from 'lucide-react';
 import api from '../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 
-/**
- * Modera Dashboard - Gemini/Mistral AI Powered
- * Instruction 4.1 & 4.2 & 4.5 Integration
- * Provides real-time asset analysis and live database intelligence.
- */
 export default function Dashboard() {
   const { user, loading } = useAuth();
   const router = useRouter();
   
-  // Logic States
   const [imageUrl, setImageUrl] = useState('');
   const [result, setResult] = useState(null);
   const [loadingAI, setLoadingAI] = useState(false);
   const [error, setError] = useState(null);
-
-  // Requirement 4.5: Live Analytics Data State
   const [stats, setStats] = useState({ total: 0, blocked: 0, flagged: 0 });
 
-  /**
-   * fetchLiveStats (Instruction 4.5)
-   * Synchronizes UI with the MongoDB global audit metrics.
-   */
   const fetchLiveStats = async () => {
     try {
       const res = await api.get('/analytics');
-      // res.data contains total, blocked, and flagged counts from DB
       setStats(res.data);
     } catch (err) {
-      console.error("Audit Node Stats Sync Error:", err);
+      console.error("Stats Sync Error:", err);
     }
   };
 
-  // On Mount: Guard Route and Initial Data Sync
   useEffect(() => {
     if (!loading && !user) {
       router.push('/auth');
@@ -52,14 +38,9 @@ export default function Dashboard() {
     }
   }, [user, loading, router]);
 
-  /**
-   * Safety Index Calculation
-   * Real-time calculation of clean assets vs total volume.
-   */
   const approvedCount = stats.total - (stats.blocked + stats.flagged);
   const liveSafetyIndex = stats.total > 0 ? Math.round((approvedCount / stats.total) * 100) : 100;
 
-  // Requirement 4.1: Submission Logic
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoadingAI(true);
@@ -68,11 +49,9 @@ export default function Dashboard() {
     try {
       const res = await api.post('/submit', { imageUrl });
       setResult(res.data);
-      
-      // Post-Submit Sync: Ensure header KPIs update immediately
       fetchLiveStats(); 
     } catch (err) {
-      setError(err.response?.data?.msg || "AI Processing Node Timeout.");
+      setError(err.response?.data?.msg || "AI Engine Timeout.");
     } finally {
       setLoadingAI(false);
     }
@@ -81,17 +60,17 @@ export default function Dashboard() {
   if (loading || !user) return null;
 
   return (
-    <div className="flex bg-[#F1F5F9] min-h-screen w-full overflow-x-hidden font-sans antialiased selection:bg-brand-primary/10">
+    <div className="flex bg-[#F8FAFC] min-h-screen w-full overflow-x-hidden font-sans antialiased">
       
-      {/* --- PROFESSIONAL TAILWIND NOTIFICATION --- */}
+      {/* PROFESSIONAL TOAST NOTIFICATION */}
       <AnimatePresence>
         {error && (
-          <motion.div initial={{ y: -100 }} animate={{ y: 20 }} exit={{ y: -100 }} 
-            className="fixed top-0 left-1/2 -translate-x-1/2 z-[200] bg-white border border-rose-100 shadow-2xl p-5 rounded-[2rem] flex items-center gap-4 max-w-md w-[90%]"
+          <motion.div initial={{ y: -100, opacity: 0 }} animate={{ y: 24, opacity: 1 }} exit={{ y: -100, opacity: 0 }} 
+            className="fixed top-0 left-1/2 -translate-x-1/2 z-[200] bg-white border border-rose-100 shadow-2xl p-4 rounded-2xl flex items-center gap-4 max-w-md w-[90%]"
           >
-            <div className="bg-rose-50 p-2 rounded-2xl text-rose-500 shadow-inner"><ShieldAlert size={20} /></div>
-            <p className="text-xs font-black text-slate-600 flex-1 uppercase tracking-widest">{error}</p>
-            <button onClick={() => setError(null)} className="p-1 hover:bg-slate-50 rounded-full transition-colors"><X size={18} className="text-slate-300" /></button>
+            <div className="bg-rose-50 p-2 rounded-xl text-rose-500"><ShieldAlert size={18} /></div>
+            <p className="text-[10px] font-black text-slate-600 flex-1 uppercase tracking-widest">{error}</p>
+            <button onClick={() => setError(null)}><X size={16} className="text-slate-300" /></button>
           </motion.div>
         )}
       </AnimatePresence>
@@ -99,168 +78,151 @@ export default function Dashboard() {
       <Sidebar />
 
       <main className="flex-1 flex flex-col min-h-screen">
-        <div className="p-6 md:p-12 flex-grow">
+        <div className="p-6 lg:p-12 flex-grow max-w-7xl mx-auto w-full">
           
-          {/* INDUSTRIAL CONSOLE HEADER */}
-          <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8">
-            <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-              <div className="flex items-center gap-3 mb-3">
-                 <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping shadow-[0_0_10px_rgba(16,185,129,0.8)]" />
-                 <span className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.4em]">Audit Node Active</span>
+          {/* HEADER SECTION - BALANCED & SLEEK */}
+          <header className="mb-12 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                 <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                 </span>
+                 <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em]">Node: 0x82A1 • Operational</span>
               </div>
-              <h1 className="text-6xl font-black text-slate-800 tracking-tighter italic uppercase leading-none">
-                Modera <span className="text-brand-primary">Console</span>
+              <h1 className="text-4xl font-black text-slate-800 tracking-tighter uppercase italic">
+                Control <span className="text-brand-primary">Center</span>
               </h1>
-              <div className="flex items-center gap-4 mt-3">
-                 <p className="text-slate-400 font-bold text-xs uppercase tracking-widest leading-none">Auth: <span className="text-slate-900 font-black">{user.username}</span></p>
-                 <div className="h-4 w-px bg-slate-300" />
-                 <p className="text-slate-400 font-bold text-xs uppercase tracking-widest leading-none">Role: <span className="text-brand-primary">{user.role}</span></p>
-              </div>
-            </motion.div>
+            </div>
 
-            <div className="bg-white px-6 py-4 rounded-[1.5rem] border border-slate-100 shadow-2xl flex items-center gap-5">
-               <div className="text-right">
-                  <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest leading-none mb-1">Intelligence Layer</p>
-                  <p className="text-sm font-black text-brand-primary uppercase tracking-widest italic">Pixtral 12B Vision</p>
-               </div>
-               <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-brand-primary shadow-inner border border-indigo-100/50">
-                  <Cpu size={24} className="animate-pulse" />
-               </div>
+            <div className="flex items-center gap-4">
+                <div className="text-right hidden md:block">
+                    <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest">Active Operator</p>
+                    <p className="text-sm font-black text-slate-700">{user.username}</p>
+                </div>
+                <div className="w-12 h-12 bg-white rounded-2xl border border-slate-100 shadow-lg flex items-center justify-center text-brand-primary">
+                    <Cpu size={24} />
+                </div>
             </div>
           </header>
 
-          {/* KPI GRID (Instruction 4.5 - Point 2 Implementation) */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-            <StatCard 
-                title="Integrity Score" 
-                value={`${liveSafetyIndex}%`} 
-                icon={<ShieldCheck size={32}/>} 
-                colorClass="bg-emerald-50 text-emerald-600 border border-emerald-100" 
-                delay={0.1} 
-            />
-            <StatCard 
-                title="Awaiting Review" 
-                value={stats.flagged} 
-                icon={<AlertTriangle size={32}/>} 
-                colorClass="bg-amber-50 text-amber-600 border border-amber-100" 
-                delay={0.2} 
-            />
-            <StatCard 
-                title="Total Interceptions" 
-                value={stats.blocked} 
-                icon={<XCircle size={32}/>} 
-                colorClass="bg-rose-50 text-rose-600 border border-rose-100" 
-                delay={0.3} 
-            />
+          {/* KPI GRID - STABLE SIZES */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <StatCard title="Safety Index" value={`${liveSafetyIndex}%`} icon={<ShieldCheck size={24}/>} colorClass="bg-emerald-50 text-emerald-600" />
+            <StatCard title="Flagged Assets" value={stats.flagged} icon={<AlertTriangle size={24}/>} colorClass="bg-amber-50 text-amber-600" />
+            <StatCard title="Blocked Assets" value={stats.blocked} icon={<XCircle size={24}/>} colorClass="bg-rose-50 text-rose-600" />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 items-start">
-            
-            {/* 4.1 SUBMISSION WORKSPACE */}
-            <section className="lg:col-span-2 bg-white p-10 md:p-14 rounded-[3.5rem] border border-slate-100 shadow-2xl relative overflow-hidden group">
-              {/* Glass background decorative glow */}
-              <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-50/50 rounded-full -mr-24 -mt-24 blur-3xl group-hover:bg-indigo-100 transition-colors" />
-              
-              <div className="relative z-10 text-left">
-                <div className="flex items-center gap-4 mb-12">
-                   <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-brand-primary border border-slate-100 shadow-inner">
-                      <Fingerprint size={24} />
-                   </div>
-                   <h2 className="text-2xl font-black text-slate-800 uppercase italic tracking-tighter">Initial Audit</h2>
+          {/* MAIN ACTION SECTION - FULL ROW INPUT */}
+          <motion.section 
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+            className="bg-white p-6 lg:p-10 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 mb-12 relative overflow-hidden"
+          >
+            <div className="absolute top-0 right-0 p-8 opacity-5 text-brand-primary pointer-events-none">
+                <Zap size={120} />
+            </div>
+
+            <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-8">
+                   <div className="p-2 bg-indigo-50 text-brand-primary rounded-lg border border-indigo-100"><Search size={18} /></div>
+                   <h2 className="text-lg font-black text-slate-800 uppercase tracking-tighter">Initial Asset Audit</h2>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-10">
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-2">Hardware Image Stream</label>
-                    <input 
-                        type="text" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)}
-                        placeholder="https://images.unsplash.com/..."
-                        className="w-full p-6 rounded-[1.5rem] border-2 border-slate-50 bg-slate-50 focus:bg-white focus:border-brand-primary focus:ring-[12px] focus:ring-brand-primary/5 outline-none transition-all font-bold text-slate-800 shadow-inner"
-                        required
-                    />
-                  </div>
-                  <button 
-                    disabled={loadingAI} 
-                    className="w-full bg-brand-primary text-white py-7 rounded-[1.5rem] font-black uppercase tracking-[0.3em] text-xs shadow-2xl shadow-brand-primary/30 transition-all hover:bg-brand-accent hover:-translate-y-1 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-4"
-                  >
-                    {loadingAI ? (
-                        <>
-                           <Activity className="animate-spin" size={18} />
-                           <span>Deconstructing Assets...</span>
-                        </>
-                    ) : (
-                        <>
-                           <BarChart3 size={18} />
-                           <span>Run Analysis</span>
-                        </>
-                    )}
-                  </button>
+                <form onSubmit={handleSubmit} className="flex flex-col lg:flex-row gap-4 items-center">
+                    <div className="flex-1 w-full relative group">
+                        <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-brand-primary transition-colors">
+                            <Fingerprint size={20} />
+                        </div>
+                        <input 
+                            type="text" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)}
+                            placeholder="Enter image URL for deconstruction..."
+                            className="w-full pl-14 pr-6 py-5 rounded-2xl bg-slate-50 border-2 border-transparent focus:border-brand-primary focus:bg-white outline-none transition-all font-bold text-slate-700 shadow-inner"
+                            required
+                        />
+                    </div>
+                    <button 
+                        disabled={loadingAI}
+                        className="w-full lg:w-64 bg-brand-primary text-white py-5 rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-2xl shadow-brand-primary/30 hover:-translate-y-1 active:scale-95 disabled:opacity-50 transition-all flex items-center justify-center gap-3"
+                    >
+                        {loadingAI ? <Activity className="animate-spin" size={16} /> : <Zap size={16} />}
+                        {loadingAI ? "Auditing..." : "Execute Scan"}
+                    </button>
                 </form>
-              </div>
-            </section>
-
-            {/* 4.2 LIVE AUDIT REPORT ENGINE (Confidence Scores) */}
-            <div className="lg:col-span-3 min-h-[500px]">
-              <AnimatePresence mode="wait">
-                {result ? (
-                  <motion.div 
-                    key="report" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, scale: 0.98 }}
-                    className="bg-white p-10 md:p-12 rounded-[4rem] border border-slate-100 shadow-2xl h-full flex flex-col text-left"
-                  >
-                    <div className="flex justify-between items-start mb-12">
-                       <div>
-                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Global Audit Resolution</p>
-                          <h3 className={`text-6xl font-black uppercase italic tracking-tighter mt-2 ${result.outcome === 'Approved' ? 'text-emerald-500' : 'text-rose-500'}`}>
-                             {result.outcome}
-                          </h3>
-                       </div>
-                       <div className="px-5 py-2 bg-slate-50 rounded-2xl border border-slate-100 text-[10px] font-black text-slate-400 uppercase tracking-widest shadow-inner">
-                          NODE-ID: {result._id.slice(-6)}
-                       </div>
-                    </div>
-
-                    {/* Requirement 4.2: Structured Per-Category Breakdown */}
-                    <div className="space-y-8 flex-1">
-                       <p className="text-[11px] font-black text-brand-primary uppercase tracking-[0.4em] mb-6 flex items-center gap-2">
-                          <BarChart3 size={14} /> Intelligence Profile
-                       </p>
-                       {result.results.map((res, i) => (
-                         <motion.div 
-                            key={i} initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} transition={{ delay: i * 0.1 }}
-                            className="space-y-3 p-5 bg-slate-50/50 rounded-[1.5rem] border border-slate-100 group transition-all hover:bg-white hover:shadow-xl hover:border-brand-primary/10"
-                         >
-                            <div className="flex justify-between items-center text-[11px] font-black uppercase tracking-widest">
-                               <span className="text-slate-600">{res.category}</span>
-                               <span className={res.confidence > 50 ? 'text-rose-500' : 'text-emerald-500'}>{res.confidence}% Certainty</span>
-                            </div>
-                            <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden shadow-inner relative">
-                               <motion.div 
-                                  initial={{ width: 0 }} animate={{ width: `${res.confidence}%` }} transition={{ duration: 1.2, ease: "easeOut" }}
-                                  className={`h-full rounded-full ${res.confidence > 50 ? 'bg-rose-500 shadow-[0_0_12px_rgba(244,63,94,0.6)]' : 'bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.6)]'}`}
-                               />
-                            </div>
-                            <p className="text-[10px] text-slate-400 font-bold italic leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                               Detection Note: {res.reasoning}
-                            </p>
-                         </motion.div>
-                       ))}
-                    </div>
-                  </motion.div>
-                ) : (
-                  /* EMPTY STATE VISUAL (Cool Dashboard Placeholder) */
-                  <div className="h-full min-h-[550px] border-2 border-dashed border-slate-200 rounded-[4rem] flex flex-col items-center justify-center text-center p-16 bg-white/40 backdrop-blur-sm">
-                     <div className="w-28 h-28 bg-white/80 rounded-full flex items-center justify-center text-slate-100 shadow-inner mb-8 border border-white">
-                        <Layers size={56} />
-                     </div>
-                     <h3 className="text-2xl font-black text-slate-300 uppercase italic tracking-tighter">Node Ready</h3>
-                     <p className="text-slate-400 text-sm font-bold uppercase tracking-widest mt-3 max-w-[320px] leading-relaxed">
-                        Transmit an image data stream into the governance node to generate a live safety report.
-                     </p>
-                  </div>
-                )}
-              </AnimatePresence>
             </div>
-          </div>
+          </motion.section>
+
+          {/* AUDIT RESULTS - CENTERED & BALANCED */}
+          <AnimatePresence mode="wait">
+            {result ? (
+              <motion.div 
+                key="result" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
+                className="bg-white rounded-[3rem] border border-slate-100 shadow-2xl overflow-hidden mb-12"
+              >
+                <div className="p-8 lg:p-12 border-b border-slate-50 flex flex-col md:flex-row justify-between items-center gap-6 bg-slate-50/30">
+                    <div className="flex items-center gap-6">
+                        <div className="w-24 h-24 rounded-3xl overflow-hidden shadow-2xl border-4 border-white rotate-3">
+                            <img src={result.imageUrl} className="w-full h-full object-cover" alt="Audit" />
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-1">Global Verdict</p>
+                            <h3 className={`text-5xl font-black italic uppercase tracking-tighter ${result.outcome === 'Approved' ? 'text-emerald-500' : 'text-rose-500'}`}>
+                                {result.outcome}
+                            </h3>
+                        </div>
+                    </div>
+                    <div className="bg-white px-6 py-4 rounded-2xl border border-slate-100 shadow-sm text-center min-w-[140px]">
+                        <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest leading-none mb-1">Registry ID</p>
+                        <p className="text-sm font-black text-slate-700 tracking-widest">#{result._id.slice(-6).toUpperCase()}</p>
+                    </div>
+                </div>
+
+                <div className="p-8 lg:p-12">
+                    <p className="text-[10px] font-black text-brand-primary uppercase tracking-[0.4em] mb-8 flex items-center gap-2">
+                        <ClipboardCheck size={14} /> Category Confidence Matrix
+                    </p>
+                    
+                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {result.results.map((res, i) => (
+                      <div key={i} className="p-6 bg-slate-50/50 border border-slate-100 rounded-3xl group hover:bg-white hover:shadow-xl transition-all duration-300">
+                        <div className="flex justify-between items-center mb-4">
+                          {/* Category Header: Balanced to 11px */}
+                          <span className="text-[11px] font-black text-slate-500 uppercase tracking-[0.15em] leading-none">
+                            {res.category}
+                          </span>
+                          {/* Percentage: Balanced to 12px (text-xs) */}
+                          <span className={`text-xs font-black ${res.confidence > 50 ? 'text-rose-500' : 'text-emerald-500'}`}>
+                            {res.confidence}%
+                          </span>
+                        </div>
+                        
+                        {/* Thicker Progress Bar for better visibility */}
+                        <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden shadow-inner mb-5">
+                          <motion.div 
+                          initial={{ width: 0 }} 
+                          animate={{ width: `${res.confidence}%` }} 
+                          transition={{ duration: 1, ease: "easeOut" }}
+                          className={`h-full ${res.confidence > 50 ? 'bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.3)]' : 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]'}`}
+                          />
+                        </div>
+                        
+                        {/* Note Text: Balanced to 12px (text-xs) for readability */}
+                        <p className="text-xs text-slate-400 font-bold italic leading-relaxed opacity-75 group-hover:opacity-100 transition-opacity"> 
+                          Note: {res.reasoning}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                  
+                </div>
+              </motion.div>
+            ) : (
+                <div className="h-64 border-2 border-dashed border-slate-200 rounded-[3rem] flex flex-col items-center justify-center text-center opacity-40">
+                    <Layers size={48} className="text-slate-300 mb-4" />
+                    <p className="text-xs font-black text-slate-400 uppercase tracking-[0.3em]">System Standby • Awaiting Data Link</p>
+                </div>
+            )}
+          </AnimatePresence>
+
         </div>
         <Footer />
       </main>
