@@ -11,6 +11,11 @@ import {
 import api from '../utils/api';
 import { motion, AnimatePresence } from 'framer-motion';
 
+/**
+ * Modera Dashboard - Gemini/Mistral AI Powered
+ * Instruction 4.1 & 4.2 & 4.5 Integration
+ * FULLY RESPONSIVE FIX: Clear Mobile AppBar conflict
+ */
 export default function Dashboard() {
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -78,7 +83,8 @@ export default function Dashboard() {
       <Sidebar />
 
       <main className="flex-1 flex flex-col min-h-screen">
-        <div className="p-6 lg:p-12 flex-grow max-w-7xl mx-auto w-full">
+        {/* RESPONSIVE FIX: pt-24 added to clear mobile app bar */}
+        <div className="p-6 pt-24 md:pt-12 lg:p-12 flex-grow max-w-7xl mx-auto w-full transition-all duration-500">
           
           {/* HEADER SECTION - BALANCED & SLEEK */}
           <header className="mb-12 flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -122,7 +128,7 @@ export default function Dashboard() {
                 <Zap size={120} />
             </div>
 
-            <div className="relative z-10">
+            <div className="relative z-10 text-left">
                 <div className="flex items-center gap-3 mb-8">
                    <div className="p-2 bg-indigo-50 text-brand-primary rounded-lg border border-indigo-100"><Search size={18} /></div>
                    <h2 className="text-lg font-black text-slate-800 uppercase tracking-tighter">Initial Asset Audit</h2>
@@ -156,16 +162,16 @@ export default function Dashboard() {
             {result ? (
               <motion.div 
                 key="result" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
-                className="bg-white rounded-[3rem] border border-slate-100 shadow-2xl overflow-hidden mb-12"
+                className="bg-white rounded-[3rem] border border-slate-100 shadow-2xl overflow-hidden mb-12 text-left"
               >
                 <div className="p-8 lg:p-12 border-b border-slate-50 flex flex-col md:flex-row justify-between items-center gap-6 bg-slate-50/30">
                     <div className="flex items-center gap-6">
-                        <div className="w-24 h-24 rounded-3xl overflow-hidden shadow-2xl border-4 border-white rotate-3">
+                        <div className="w-24 h-24 rounded-3xl overflow-hidden shadow-2xl border-4 border-white rotate-3 flex-shrink-0">
                             <img src={result.imageUrl} className="w-full h-full object-cover" alt="Audit" />
                         </div>
                         <div>
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-1">Global Verdict</p>
-                            <h3 className={`text-5xl font-black italic uppercase tracking-tighter ${result.outcome === 'Approved' ? 'text-emerald-500' : 'text-rose-500'}`}>
+                            <h3 className={`text-5xl font-black italic uppercase tracking-tighter mt-1 ${result.outcome === 'Approved' ? 'text-emerald-500' : 'text-rose-500'}`}>
                                 {result.outcome}
                             </h3>
                         </div>
@@ -185,17 +191,14 @@ export default function Dashboard() {
                     {result.results.map((res, i) => (
                       <div key={i} className="p-6 bg-slate-50/50 border border-slate-100 rounded-3xl group hover:bg-white hover:shadow-xl transition-all duration-300">
                         <div className="flex justify-between items-center mb-4">
-                          {/* Category Header: Balanced to 11px */}
                           <span className="text-[11px] font-black text-slate-500 uppercase tracking-[0.15em] leading-none">
                             {res.category}
                           </span>
-                          {/* Percentage: Balanced to 12px (text-xs) */}
                           <span className={`text-xs font-black ${res.confidence > 50 ? 'text-rose-500' : 'text-emerald-500'}`}>
                             {res.confidence}%
                           </span>
                         </div>
                         
-                        {/* Thicker Progress Bar for better visibility */}
                         <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden shadow-inner mb-5">
                           <motion.div 
                           initial={{ width: 0 }} 
@@ -205,14 +208,12 @@ export default function Dashboard() {
                           />
                         </div>
                         
-                        {/* Note Text: Balanced to 12px (text-xs) for readability */}
                         <p className="text-xs text-slate-400 font-bold italic leading-relaxed opacity-75 group-hover:opacity-100 transition-opacity"> 
                           Note: {res.reasoning}
                         </p>
                       </div>
                     ))}
                   </div>
-                  
                 </div>
               </motion.div>
             ) : (
